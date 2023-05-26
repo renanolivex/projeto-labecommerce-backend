@@ -38,7 +38,7 @@ function Resultados(gerarValor, escolha) {
                 break;
         }
         
-
+ 
     }
 
 }

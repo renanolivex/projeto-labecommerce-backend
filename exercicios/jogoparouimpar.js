@@ -27,5 +27,5 @@ function parImpar(total, parOuImpar){
                 case "impar": console.log(`O total deu ${total}, Você Venceu!`)
                 break;
               }      
-    }
+    } 
 }

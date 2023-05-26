@@ -1,1 +1,1 @@
-console.log("Aplicativo foi iniciado")
+console.log("Aplicativo foi iniciado") 
