@@ -1,5 +1,5 @@
 
-export type Tusers = {
+export type TUsers = {
     id: string,
     name: string,
     email: string,
@@ -7,7 +7,7 @@ export type Tusers = {
     createdAt: string,
 }
 
-export type Tproducts ={
+export type TProducts ={
     id:string,
     name: string,
     price: number,
