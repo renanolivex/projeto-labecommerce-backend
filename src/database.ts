@@ -87,7 +87,8 @@ export function getAllProducts (){
 export function searchProductsByName(products:TProducts[], name:string):TProducts[] {
     return products.filter(
       (product) => {
-        return product.name.toLowerCase() === name.toLowerCase()
+        return product.name.toLowerCase().includes(name.toLowerCase())
+        
       }
     )
   }
