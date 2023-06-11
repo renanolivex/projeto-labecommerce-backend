@@ -82,3 +82,47 @@ app.post("/products", (req:Request, res:Response)=>{
     res.status(201).send("Produto registrado com sucesso")
 })
 
+//APAGAR USUÁRIO
+app.delete("/users/:id", (req:Request, res:Response)=>{
+    const id = req.params.id
+    const findIndex=users.findIndex((user)=>{
+        return user.id === id
+    })
+    if(findIndex >=0){
+    users.splice(findIndex, 1)
+    res.status(200).send("Usuário apagado com sucesso")
+} else{res.status(200).send("Usuário não encontrado")}
+})
+
+//APAGAR PRODUTO
+app.delete("/products/:id", (req:Request, res:Response)=>{
+    const id = req.params.id
+    const findIndex=products.findIndex((product)=>{
+        return product.id === id
+    })
+    if(findIndex >=0){
+    products.splice(findIndex, 1)
+    res.status(200).send("Produto apagado com sucesso")
+} else{res.status(200).send("Produto não encontrado")}
+})
+
+//EDIT PRODUTO
+app.put("/products/:id", (req: Request, res:Response)=>{
+    const id=req.params.id
+    const {id:newId,price,description,imageUrl} =req.body
+    const findProducts = products.find((product)=>{
+        return product.id===id
+      })
+   
+    if(findProducts){
+    
+        findProducts.id=newId || findProducts.id,
+        findProducts.price = price || findProducts.price,
+        findProducts.description = description||findProducts.description,
+        findProducts.imageUrl = imageUrl||findProducts.imageUrl
+        
+        res.status(200).send("Produto alterado com sucesso!")
+    }else{
+        res.status(200).send("Produto não encontrado")
+    }
+})
