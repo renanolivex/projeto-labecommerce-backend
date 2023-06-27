@@ -74,6 +74,36 @@ SET description = "nova descrição"
 WHERE id = "prod006";
 UPDATE products 
 SET image_url = "nova image_url"
-WHERE id = "prod006"
+WHERE id = "prod006";
 
 
+--Criar tabela Purchases
+
+CREATE TABLE IF NOT EXISTS purchases(
+    purchase_id TEXT PRIMARY KEY UNIQUE NOT NULL,
+    buyer_name TEXT NOT NULL,
+    total_price REAL NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    buyer_id TEXT NOT NULL,
+    FOREIGN KEY (buyer_id) REFERENCES users(id)
+);
+
+INSERT INTO purchases (purchase_id, buyer_name, total_price, buyer_id)
+VALUES ("pur001", "Fulano2", 258.50,"u002"),
+("pur002", "Fulano2", 200.50,"u002"),
+("pur003", "Fulano", 125.00, "u001"),
+("pur004", "Fulano3", 50.50, "u003"),
+("pur005", "Fulano", 47.80, "u001");
+
+SELECT * FROM purchases;
+
+DROP TABLE purchases;
+
+UPDATE purchases
+SET total_price = 248.50
+WHERE purchase_id = "pur003";
+
+-- UNINDO TABELAS PURCHASES e USER
+SELECT purchases.purchase_id, purchases.buyer_id, purchases.buyer_name, users.email, purchases.total_price, purchases.created_at
+FROM purchases
+JOIN users ON purchases.buyer_id = users.id;
