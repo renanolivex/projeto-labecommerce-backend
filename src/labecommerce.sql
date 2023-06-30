@@ -80,20 +80,19 @@ WHERE id = "prod006";
 --Criar tabela Purchases
 
 CREATE TABLE IF NOT EXISTS purchases(
-    purchase_id TEXT PRIMARY KEY UNIQUE NOT NULL,
-    buyer_name TEXT NOT NULL,
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,
+    buyer TEXT NOT NULL,
     total_price REAL NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    buyer_id TEXT NOT NULL,
-    FOREIGN KEY (buyer_id) REFERENCES users(id)
+    FOREIGN KEY (buyer) REFERENCES users(id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
-INSERT INTO purchases (purchase_id, buyer_name, total_price, buyer_id)
-VALUES ("pur001", "Fulano2", 258.50,"u002"),
-("pur002", "Fulano2", 200.50,"u002"),
-("pur003", "Fulano", 125.00, "u001"),
-("pur004", "Fulano3", 50.50, "u003"),
-("pur005", "Fulano", 47.80, "u001");
+INSERT INTO purchases (id, buyer, total_price)
+VALUES ("pur001", "u001", 258.50),
+("pur002", "u002", 200.50),
+("pur003", "u001", 125.00),
+("pur004", "u003", 50.50),
+("pur005", "u001", 47.80);
 
 SELECT * FROM purchases;
 
@@ -104,6 +103,58 @@ SET total_price = 248.50
 WHERE purchase_id = "pur003";
 
 -- UNINDO TABELAS PURCHASES e USER
-SELECT purchases.purchase_id, purchases.buyer_id, purchases.buyer_name, users.email, purchases.total_price, purchases.created_at
+SELECT purchases.id AS "ID Compra", users.id AS "ID Comprador", users.name AS "Nome Comprador", users.email AS "Email", purchases.total_price AS "Preço total", purchases.created_at AS "Criado em"
 FROM purchases
-JOIN users ON purchases.buyer_id = users.id;
+JOIN users ON users.id = purchases.buyer;
+
+--Criação de tabela de relação
+
+CREATE TABLE IF NOT EXISTS purchases_products(
+    purchase_id TEXT NOT NULL,
+    product_id TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
+    FOREIGN KEY (purchase_id) REFERENCES purchases(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON UPDATE CASCADE ON DELETE RESTRICT
+    );
+
+DROP TABLE purchases_products;
+
+INSERT INTO purchases_products(purchase_id, product_id, quantity)
+VALUES ("pur001", "prod002",2 ),
+("pur003", "prod001",1 ),
+("pur002", "prod003",4 );
+
+SELECT * FROM products
+LEFT JOIN purchases_products
+ON purchases_products.product_id = products.id
+LEFT JOIN purchases
+ON purchases_products.purchase_id = purchases.id;
+
+
+UPDATE users
+SET id = "u000"
+WHERE id ="u001";
+
+--- USADO PARA TESTE
+
+SELECT * FROM users;
+
+SELECT * FROM products;
+
+SELECT * FROM purchases;
+
+SELECT * FROM purchases_products;
+
+DROP TABLE users;
+DROP TABLE products;
+DROP TABLE purchases;
+DROP TABLE purchases_products;
+
+
+
+
+
+
+
+
+
