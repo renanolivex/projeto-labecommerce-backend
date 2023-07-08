@@ -1,7 +1,7 @@
 import { TProducts, TUsers } from "./types";
 
 export const users: TUsers[] = [
-    {
+  /*   {
         id: "u001",
         name: "Fulano",
         email: "fulano@email.com",
@@ -14,11 +14,11 @@ export const users: TUsers[] = [
         email: "fulano2@email.com",
         password: "fulano1232",
         createdAt: new Date().toISOString()
-    }
+    } */
 ]
 
 export const products: TProducts[] = [
-    {
+ /*    {
 
         id: "prod001",
         name: "Mouse gamer",
@@ -33,7 +33,7 @@ export const products: TProducts[] = [
         price: 900,
         description: "Monitor LED Full HD 24 polegadas",
         imageUrl: "https://picsum.photos/seed/Monitor/400"
-    }
+    } */
 ]
 
 

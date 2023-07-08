@@ -2,7 +2,7 @@ import {  createProduct, createUser, getAllProducts, getAllUsers,   products, se
 import express, {Request, Response} from 'express'
 import cors from 'cors'
 import { TProducts, TUsers } from "./types"
-import { type } from "os"
+import { db } from "./knex"
 
 
 console.log("Aplicativo foi iniciado") 
@@ -37,22 +37,25 @@ app.get('/ping', (req: Request, res: Response) => {
     res.send('Pong!')
 })
 //Pegar usuarios
-app.get("/users",(req:Request, res:Response)=>{
+app.get("/users",async(req:Request, res:Response)=>{
     
-    try {
-        res.status(200).send(users)
-        
+    try{ const result = await db.raw(
+        `SELECT * FROM users; `
+    )
+        res.status(200).send(result)
+               
     } catch (error) {
         res.status(400).send(error)
     }
 })
 //Pegar todos os produtos
-app.get("/products",(req:Request, res:Response)=>{
+app.get("/products",async(req:Request, res:Response)=>{
     
-    const name=req.query.name as string
+    const name=req.query.name
 
     try {
-        let response
+     
+        let result
 
             if(name!==undefined){
             if(typeof (name)!=="string"){
@@ -61,20 +64,19 @@ app.get("/products",(req:Request, res:Response)=>{
                 throw new Error("A pesquisa do produto deve conter somente letras")
             } 
     
-            if(name.length<=0){
-                res.status(404) 
-                throw new Error("O nome do produto buscado deve conter pelo menos 1 caracter")
-            }
-    
-            response = searchProductsByName(products, name)
-            if (response.length === 0){
-                res.status(404) 
-                throw new Error("Não foi encontrado nenhum produto")
-
-            }
-       }else {response = products}
-       res.status(200).send(response)
-        
+            if(name.length===0){
+                result = await db.raw(
+                    `SELECT * FROM products`
+                )
+                    res.status(200).send(result)}else{
+            
+            result = await db.raw(
+                `SELECT * FROM products 
+                WHERE name LIKE '%${name}%'`)
+                /* if(result[0]){ */
+                res.status(200).send(result)/* }else */
+              /*   res.status(422) 
+                throw new Error("Produto não encontrado!") */}      }
     } catch (error) {
         if (error instanceof Error) {
             res.send(error.message)
@@ -86,10 +88,14 @@ app.get("/products",(req:Request, res:Response)=>{
 })
 
 //Criar novo Usuario
-app.post("/users", (req:Request, res:Response)=>{
-    const {id, name, email, password, createdAt}= req.body
+app.post("/users", async(req:Request, res:Response)=>{
+    const {id, name, email, password}= req.body
+
     
     try {
+
+      
+
         //Validação ID
         if(id!==undefined){
         if(typeof(id)!=="string"){
@@ -132,7 +138,7 @@ app.post("/users", (req:Request, res:Response)=>{
         if(typeof(password)!=="string"){
               
           res.status(422) 
-          throw new Error("O email deve ser uma string")
+          throw new Error("O password deve ser uma string")
   
       }if(password.length<4){
         res.status(400)
@@ -141,16 +147,7 @@ app.post("/users", (req:Request, res:Response)=>{
     
     }
  
-    //Validação CreatedAt
-
-    if(createdAt!==undefined){
-        if(typeof(createdAt)!=="string"){
-              
-          res.status(422) 
-          throw new Error("O createdAt deve ser uma string")
-  
-      }}
-
+ 
        //Validação se email e ID existem
       const findId = users.find((user)=>user.id===id)
 
@@ -167,20 +164,15 @@ app.post("/users", (req:Request, res:Response)=>{
         throw new Error("O Email já existe! Escolha outro Email")
       }
 
+      await db.raw(`
+      INSERT INTO users (id, name, email, password)
+      VALUES("${id}", "${name}", "${email}", "${password}")
+           `) 
+           res.status(201).send("Usuario registrado com sucesso")
+    }
+
        
-        const newUser:TUsers = {
-            id: id,
-            name: name,
-            email: email,
-            password: password,
-            createdAt: createdAt
-            
-        }
-    
-        users.push(newUser);
-        res.status(201).send("Usuario registrado com sucesso")
-        
-    } catch (error) {
+ catch (error) {
            if (error instanceof Error) {
             res.send(error.message)
         } else {
@@ -190,7 +182,7 @@ app.post("/users", (req:Request, res:Response)=>{
    
 })
 
-app.post("/products", (req:Request, res:Response)=>{
+app.post("/products", async (req:Request, res:Response)=>{
     const {id, name, price, description, imageUrl}= req.body
     
     try {
@@ -250,15 +242,11 @@ app.post("/products", (req:Request, res:Response)=>{
 
         }
     
-        const newProduct:TProducts = {
-            id: id,
-            name: name,
-            price: price,
-            description: description,
-            imageUrl: imageUrl,              
-        }
-    
-        products.push(newProduct);
+        await db.raw(`
+        INSERT INTO products (id, name, price, description, image_url)
+        VALUES ("${id}","${name}", ${price},"${description}", "${imageUrl}")
+           `) 
+               
         res.status(201).send("Produto registrado com sucesso")
 
     } catch (error) {
@@ -325,10 +313,10 @@ app.delete("/products/:id", (req:Request, res:Response)=>{
 })
 
 //EDIT PRODUTO
-app.put("/products/:id", (req: Request, res:Response)=>{
+app.put("/products/:id", async(req: Request, res:Response)=>{
     const id=req.params.id
 
-    const {id:newId,price,description,imageUrl} =req.body
+    const {id:newId,price,description,image_url} =req.body
 
     try {
 
@@ -354,14 +342,33 @@ app.put("/products/:id", (req: Request, res:Response)=>{
         }}
 
          //Validação Url
-       if(imageUrl!==undefined){
-        if(typeof(imageUrl)!=="string"){
+       if(image_url!==undefined){
+        if(typeof(image_url)!=="string"){
             res.status(422) 
             throw new Error("A URL deve ser uma string")
         }}
+
+        const [ findProducts ] = await db.raw(`
+        SELECT * FROM products WHERE id = "${id}"
+        `)
+
+        if (findProducts) {
+            await db.raw(`
+            UPDATE products
+            SET id ="${newId || findProducts.id}",
+            price = "${price || findProducts.price}",
+            description = "${description || findProducts.description}",
+            image_url = "${image_url || findProducts.image_url}"
+            WHERE id = "${id}"
+            `
+            
+            )
+            res.status(201).send("Produto alterado com sucesso!")
+        }
+        
         
 
-        const findProducts = products.find((product)=>{
+       /*  const findProducts = products.find((product)=>{
             return product.id===id
           })
 
@@ -375,8 +382,10 @@ app.put("/products/:id", (req: Request, res:Response)=>{
             findProducts.imageUrl = imageUrl||findProducts.imageUrl
             
             res.status(200).send("Produto alterado com sucesso!")
-        }else{
-            res.status(200).send("Produto não encontrado")
+        } */else{
+            res.status(404)
+            throw new Error("'id' não encontrada")
+          
         }
         
     } catch (error) {
@@ -387,4 +396,132 @@ app.put("/products/:id", (req: Request, res:Response)=>{
         }
     }
   
+})
+
+
+
+app.post("/purchases", async (req:Request, res:Response)=>{
+    const {id, buyer, total_price}= req.body
+    
+    try {
+
+
+        //Validação ID
+        if(id!==undefined){
+            if(typeof(id)!=="string"){
+                res.status(422) 
+                throw new Error("O ID deve ser uma string")
+            }}
+    
+        //Validação buyer
+        if(buyer!==undefined){
+            if(typeof(buyer)!=="string"){
+                
+                res.status(422) 
+                throw new Error("O ID deve ser uma string")
+    
+            }
+   /*          
+            
+            const findUser = users.find((user)=>{
+                return user.id===id
+              })
+
+              if(!findUser){
+
+                res.status(422) 
+                throw new Error("ID de usuário não encontrado!")
+                
+              }
+         */
+        }
+
+
+        //Validação quantity
+        if(total_price!==undefined){
+            if(typeof(total_price)!=="number"){
+                
+                res.status(422) 
+                throw new Error("O Preço deve ser um número")
+            }}
+    
+        
+
+
+       /*  //Validação Id Existente
+        const findIdProduct = products.find((product)=> product.id === id )
+
+        if(!findIdProduct){
+            res.status(400)
+            throw new Error("Produto não existente")
+
+        } */
+    
+        await db.raw(`
+        INSERT INTO purchases (id, buyer, total_price)
+        VALUES ("${id}","${buyer}", "${total_price}")
+           `) 
+               
+        res.status(201).send("Pedido registrado com sucesso")
+
+    } catch (error) {
+        if (error instanceof Error) {
+            res.send(error.message)
+        } else {
+            res.status(500).send("Erro desconhecido")
+        }
+        
+    }
+
+    
+})
+
+app.get("/purchases",async(req:Request, res:Response)=>{
+    
+    try{ const result = await db.raw(
+        `SELECT * FROM purchases
+        `
+    )
+        res.status(200).send(result)
+               
+    } catch (error) {
+        res.status(400).send(error)
+    }
+})
+
+
+app.delete("/purchases/:id", async (req:Request, res:Response)=>{
+    const id = req.params.id
+
+    try {
+       /*  const findIndex=products.findIndex((product)=>{
+            return product.id === id
+        })
+        if(findIndex >=0){
+        products.splice(findIndex, 1) */
+
+        const [ findPurchase ] = await db.raw(`
+        SELECT * FROM purchases WHERE id = "${id}"
+        `)
+
+        if(findPurchase){ await db.raw(`
+        DELETE FROM purchases WHERE id = "${id}"
+        `)
+
+            res.status(200).send("Compra apagada com sucesso!")
+        }
+
+
+        
+    else{res.status(200)
+    throw new Error("Compra não encontrada")}
+        
+    } catch (error) {
+        if (error instanceof Error) {
+            res.send(error.message)
+        } else {
+            res.status(500).send("Erro desconhecido")
+        }
+    }
+    
 })
