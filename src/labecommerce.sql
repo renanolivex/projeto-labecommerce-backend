@@ -6,13 +6,13 @@ CREATE TABLE if NOT EXISTS users(
  name TEXT NOT NULL,
  email TEXT UNIQUE NOT NULL,
  password TEXT NOT NULL,
- created_at TEXT NOT NULL
+ created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO users (id, name, email, password, created_at)
-VALUES ("u001", "Fulano", "fulano@email.com", "fulano123",  "20/06/2022" ),
-("u002", "Fulano2", "fulano2@email.com", "fulano1232",  "10/02/2023" ),
-("u003", "Fulano3", "fulano3@email.com", "fulano12321",  "12/06/2023" );
+INSERT INTO users (id, name, email, password)
+VALUES ("u001", "Fulano", "fulano@email.com", "fulano123"),
+("u002", "Fulano2", "fulano2@email.com", "fulano1232"),
+("u003", "Fulano3", "fulano3@email.com", "fulano12321");
 
 --PRODUCTS
 CREATE TABLE if NOT EXISTS products(
@@ -46,8 +46,8 @@ SELECT * FROM products WHERE name LIKE "%gamer";
 
 --Add novo usuario
 
-INSERT INTO users (id, name, email, password, created_at)
-VALUES ("u004", "Fulano4", "fulano4@email.com", "fulano44442",  "22/06/2022" );
+INSERT INTO users (id, name, email, password)
+VALUES ("u004", "Fulano4", "fulano4@email.com", "fulano44442" );
 
 --Add novo produto
 
