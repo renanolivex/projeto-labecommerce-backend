@@ -14,3 +14,10 @@ export type TProducts ={
     description: string,
     imageUrl: string,
 }
+
+export type TPurchase = {
+    id:string,
+    buyer:string,
+    total_price:number,
+    products: {id:string, quantity:number}
+}
