@@ -1,8 +1,7 @@
 
 import { Request, Response } from 'express'
-import { db } from "../database/knex"
-import { users } from '../database'
-
+import { db } from "../../database/knex"
+import { TUsers } from '../../types'
 
 export const addNewUser = async (req: Request, res: Response) => {
     const { id, name, email, password } = req.body
@@ -14,9 +13,14 @@ export const addNewUser = async (req: Request, res: Response) => {
             if (typeof (id) !== "string") {
 
                 res.status(422)
-                throw new Error("O ID deve ser uma string")
+                throw new Error("O ID deve estar no formato de texto!")
 
             }
+            if(id[0]!=="u"){
+                res.status(422)
+                throw new Error("o ID deve começar com a letra 'u' no início")
+    
+                }
         }
 
         //Validação name
@@ -25,7 +29,7 @@ export const addNewUser = async (req: Request, res: Response) => {
             if (typeof (name) !== "string") {
 
                 res.status(422)
-                throw new Error("O nome deve ser uma string")
+                throw new Error("O nome deve estar no formato de texto")
 
             }
 
@@ -42,9 +46,17 @@ export const addNewUser = async (req: Request, res: Response) => {
             if (typeof (email) !== "string") {
 
                 res.status(422)
-                throw new Error("O email deve ser uma string")
-
+                throw new Error("O email deve estar no formato de texto!")
+                
             }
+
+         if (email.length <=0) {
+            res.status(400)
+            throw new Error("O email deve conter caracteres")
+        }
+
+            
+      
         }
 
         //Validação de senha
@@ -53,7 +65,7 @@ export const addNewUser = async (req: Request, res: Response) => {
             if (typeof (password) !== "string") {
 
                 res.status(422)
-                throw new Error("O password deve ser uma string")
+                throw new Error("O password deve estar no formato de texto!")
 
             } if (password.length < 4) {
                 res.status(400)
@@ -64,26 +76,27 @@ export const addNewUser = async (req: Request, res: Response) => {
 
 
         //Validação se email e ID existem
-        const findId = users.find((user) => user.id === id)
+        const [findId] = await db ("users").where({ id: id })
 
         if (findId) {
             res.status(400)
-            throw new Error("O Id já existe! Escolha outra Id")
+            throw new Error("O ID já está em uso! Escolha outra ID")
         }
 
 
-        const findEmail = users.find((user) => user.email === email)
+        const [findEmail] = await db ("users").where({ email:email })
 
         if (findEmail) {
             res.status(400)
-            throw new Error("O Email já existe! Escolha outro Email")
+            throw new Error("O Email já cadastrado! Escolha outro Email")
         }
 
-        const newUser = {
+        const newUser:TUsers = {
             id: id,
             name: name,
             email: email,
-            password: password
+            password: password,
+            created_at: new Date().toISOString().slice(0,19).replace('T',' ')
         }
 
         await db("users").insert(newUser)

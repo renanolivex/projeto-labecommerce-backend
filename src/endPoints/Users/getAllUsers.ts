@@ -1,6 +1,6 @@
 
 import { Request, Response } from 'express'
-import { db } from "../database/knex"
+import { db } from "../../database/knex"
 
 export const getAllUsers = async (req: Request, res: Response) => {
 

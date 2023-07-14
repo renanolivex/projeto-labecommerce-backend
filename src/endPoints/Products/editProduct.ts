@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { db } from "../database/knex"
+import { db } from "../../database/knex"
 
 export const editProduct = async (req: Request, res: Response) => {
     const id = req.params.id
@@ -14,7 +14,30 @@ export const editProduct = async (req: Request, res: Response) => {
                 res.status(422)
                 throw new Error("O ID deve ser uma string")
             }
+
+            if(newId[0]!=="p" || newId[1]!=="r" || newId[2]!=="o" || newId[3]!=="d"){
+                res.status(422)
+                throw new Error("o ID deve conter 'prod' no início")
+    
+                }
         }
+
+        
+        //Validação name
+        if (name !== undefined) {
+            if (typeof (name) !== "string") {
+
+                res.status(422)
+                throw new Error("O ID deve ser um texto")
+
+            }
+            if (name.length <= 1) {
+                res.status(400)
+                throw new Error("O nome do produto deve conter pelo menos 2 caracteres")
+
+            }
+        }
+
 
         //Validação Price
         if (price !== undefined) {

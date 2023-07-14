@@ -1,16 +1,16 @@
 import express, { Request, Response } from 'express'
 import cors from 'cors'
 import { db } from "./database/knex"
-import { getAllProducts } from "./endPoints/getAllProducts"
-import { getAllUsers } from "./endPoints/getAllUsers"
-import { addNewUser } from "./endPoints/addNewUser"
-import { addNewProduct } from "./endPoints/addNewProduct"
-import { delUserById } from "./endPoints/delUserById"
-import { delProductById } from "./endPoints/delProductById"
-import { editProduct } from "./endPoints/editProduct"
-import { addNewPurchases } from "./endPoints/addNewPurchases"
-import { delPurchases } from "./endPoints/delPurchases"
-import { getAllPurchases } from "./endPoints/getAllPurchases"
+import { getAllProducts } from "./endPoints/Products/getAllProducts"
+import { getAllUsers } from "./endPoints/Users/getAllUsers"
+import { addNewUser } from "./endPoints/Users/addNewUser"
+import { delUserById } from "./endPoints/Users/delUserById"
+import { delProductById } from "./endPoints/Products/delProductById"
+import { editProduct } from "./endPoints/Products/editProduct"
+import { addNewPurchases } from "./endPoints/Purchases/addNewPurchases"
+import { delPurchases } from "./endPoints/Purchases/delPurchases"
+import { getAllPurchases } from "./endPoints/Purchases/getAllPurchases"
+import { addNewProduct } from './endPoints/Products/addNewProduct'
 
 
 console.log("Aplicativo foi iniciado")
@@ -61,29 +61,3 @@ app.delete("/purchases/:id", delPurchases)
 //Buscar compras -----------------------------------------------------------------------------------------------------------------------
 app.get("/purchases/:id", getAllPurchases)
 
-//Buscar compras -----------------------------------------------------------------------------------------------------------------------
-app.get("/allpurchases", async (req: Request, res: Response) => {
-
-
-    try {
-
-        const result = await db("purchases")
-        res.status(200).send(result)
-
-    } catch (error) {
-        res.status(400).send(error)
-    }
-})
-
-app.get("/allpurchases2", async (req: Request, res: Response) => {
-
-
-    try {
-
-        const result = await db("purchases_products")
-        res.status(200).send(result)
-
-    } catch (error) {
-        res.status(400).send(error)
-    }
-})

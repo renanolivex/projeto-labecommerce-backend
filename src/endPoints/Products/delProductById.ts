@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { db } from "../database/knex"
+import { db } from "../../database/knex"
 
 
 export const delProductById = async (req: Request, res: Response) => {
@@ -14,6 +14,8 @@ export const delProductById = async (req: Request, res: Response) => {
 
             res.status(200).send("Produto apagado com sucesso!")
         }
+        if(!findProduct) {  res.status(422)
+        throw new Error("ID não encontrado")}
     } catch (error) {
         if (error instanceof Error) {
             res.send(error.message)

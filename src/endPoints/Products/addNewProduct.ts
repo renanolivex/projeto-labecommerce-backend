@@ -1,7 +1,9 @@
 
 import { Request, Response } from 'express'
-import { db } from "../database/knex"
-import { products } from '../database'
+import { db } from "../../database/knex"
+import { TProducts } from '../../types'
+
+
 
 export const addNewProduct = async (req: Request, res: Response) => {
     const { id, name, price, description, imageUrl } = req.body
@@ -12,8 +14,16 @@ export const addNewProduct = async (req: Request, res: Response) => {
         if (id !== undefined) {
             if (typeof (id) !== "string") {
                 res.status(422)
-                throw new Error("O ID deve ser uma string")
+                throw new Error("O ID deve ser um texto")
             }
+
+            if(id[0]!=="p" || id[1]!=="r" || id[2]!=="o" || id[3]!=="d"){
+            res.status(422)
+            throw new Error("o ID deve conter 'prod' no início")
+
+            }
+
+            
         }
 
         //Validação name
@@ -21,7 +31,12 @@ export const addNewProduct = async (req: Request, res: Response) => {
             if (typeof (name) !== "string") {
 
                 res.status(422)
-                throw new Error("O ID deve ser uma string")
+                throw new Error("O ID deve ser um texto")
+
+            }
+            if (name.length <= 1) {
+                res.status(400)
+                throw new Error("O nome do produto deve conter pelo menos 2 caracteres")
 
             }
         }
@@ -40,7 +55,7 @@ export const addNewProduct = async (req: Request, res: Response) => {
             if (typeof (description) !== "string") {
 
                 res.status(422)
-                throw new Error("A descrição deve ser uma string")
+                throw new Error("A descrição deve ser um texto")
 
             }
         }
@@ -50,21 +65,22 @@ export const addNewProduct = async (req: Request, res: Response) => {
             if (typeof (imageUrl) !== "string") {
 
                 res.status(422)
-                throw new Error("A url deve ser uma string")
+                throw new Error("A url deve ser um texto")
 
             }
         }
 
         //Validação Id Existente
-        const findIdProduct = products.find((product) => product.id === id)
+      
+        const [findIdProduct] = await db ("products").where({ id: id })
 
-        if (findIdProduct) {
+         if (findIdProduct) {
             res.status(400)
             throw new Error("O Id cadastrado já existe")
 
-        }
+        } 
 
-        const newProduct = {
+        const newProduct:TProducts = {
             id: id,
             name: name,
             price: price,

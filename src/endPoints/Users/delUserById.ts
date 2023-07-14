@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { db } from "../database/knex"
+import { db } from "../../database/knex"
 
 export const delUserById = async (req: Request, res: Response) => {
     const id = req.params.id
@@ -12,10 +12,11 @@ export const delUserById = async (req: Request, res: Response) => {
             await db("users").del().where({ id: id })
 
             res.status(200).send("Usuário apagado com sucesso!")
-        } else {
+        } 
+        if (!findUser){
             res.status(200)
-            throw new Error("Usuário não encontrado")
-        }
+            throw new Error("Usuário não encontrado")}
+        
     } catch (error) {
         if (error instanceof Error) {
             res.send(error.message)

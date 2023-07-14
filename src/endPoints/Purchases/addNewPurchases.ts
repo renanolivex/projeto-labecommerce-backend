@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
-import { db } from "../database/knex"
-import { TPurchase } from '../types'
+import { db } from "../../database/knex"
+import { TPurchase, TPurchaseProducts } from '../../types'
 
 
 
@@ -22,6 +22,12 @@ export const addNewPurchases = async (req: Request, res: Response) => {
                 res.status(422)
                 throw new Error("O ID deve conter pelos menos 1 caracter")
             }
+            if(id[0]!=="p" || id[1]!=="u" || id[2]!=="r"){
+                res.status(422)
+                throw new Error("o ID deve conter 'pur' no início")
+    
+                }
+            
 
         }
 
@@ -30,7 +36,7 @@ export const addNewPurchases = async (req: Request, res: Response) => {
             if (typeof (buyer) !== "string") {
 
                 res.status(422)
-                throw new Error("O ID deve ser uma string")
+                throw new Error("O ID deve estar no formato de texto")
             }
             if(total_price<= 0){
                 res.status(422)
@@ -84,7 +90,7 @@ export const addNewPurchases = async (req: Request, res: Response) => {
             [result] = await db("purchases").where({id:id})
             if (result){
                 res.status(422)
-                    throw new Error("Usuário já cadastrado na lista de compras")
+                    throw new Error("ID de compra já cadastrada na lista de compras")
             }
 
             for(let product of products){
@@ -100,13 +106,14 @@ export const addNewPurchases = async (req: Request, res: Response) => {
         const newPurchase:TPurchase={
             id:id,
             buyer:buyer,
-            total_price:total_price
+            total_price:total_price,
+            created_at: new Date().toISOString().slice(0,19).replace('T',' ')
         }
         await db("purchases").insert(newPurchase)
 
         
         for(let product of products) {
-            const newProduct={
+            const newProduct: TPurchaseProducts={
                 product_id: product.id,
                 purchase_id:id,
                 quantity: product.quantity
@@ -114,9 +121,6 @@ export const addNewPurchases = async (req: Request, res: Response) => {
             await db("purchases_products").insert(newProduct)
         }
 
-       
-        
-        
 
         res.status(201).send("Pedido realizado com sucesso")
 
