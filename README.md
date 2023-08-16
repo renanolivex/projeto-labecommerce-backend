@@ -147,7 +147,7 @@ Produto atualizado com sucesso
 curl --location 'http://localhost:3003/purchases/pur002'
 ```
 - Resposta
-
+  
 ```bash
 {
   "purchaseId": "pur002",
