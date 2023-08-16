@@ -141,7 +141,7 @@ Produto atualizado com sucesso
 ```
 ##
 ## PURCHASE - Get purchase by id
-
+    
 - Mostra a compra escolhida por ID
 ```bash
 curl --location 'http://localhost:3003/purchases/pur002'
