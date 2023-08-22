@@ -173,6 +173,7 @@ curl --location 'http://localhost:3003/purchases/pur002'
       "imageUrl": "https://picsum.photos/seed/Monitor/400",
       "quantity": 1
     },
+    
     {
       "id": "prod003",
       "name": "SoundBar",
