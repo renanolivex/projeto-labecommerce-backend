@@ -48,8 +48,8 @@ VALUES ("pur001", "u001", 258.50),
 ("pur004", "u003", 50.50),
 ("pur005", "u001", 47.80);
 
-
---Criação de tabela de relação
+--Resolvendo bugs
+--Criação de tabela de relação 
 
 CREATE TABLE IF NOT EXISTS purchases_products(
     purchase_id TEXT NOT NULL,
