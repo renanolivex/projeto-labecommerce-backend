@@ -1,7 +1,4 @@
 node_modules
 build
-<<<<<<< HEAD
-=======
 *.db
-**/node_modules
->>>>>>> 0446fa9a5cd3c1375f623d55aff32c5f0140eac6
+    
